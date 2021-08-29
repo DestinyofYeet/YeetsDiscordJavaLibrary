@@ -1,6 +1,8 @@
 package de.uwuwhatsthis.YeetsDiscordLibrary.gateway;
 
+import de.uwuwhatsthis.YeetsDiscordLibrary.errors.intents.IntentAlreadyAddedException;
 import de.uwuwhatsthis.YeetsDiscordLibrary.events.RawEventManager;
+import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.intents.Intent;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.lambdas.OnWebsocketError;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.objects.GatewayMessage;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.websocket.WebsocketConnection;
@@ -9,6 +11,9 @@ import org.json.JSONObject;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class GatewayManager implements Runnable {
@@ -30,17 +35,21 @@ public class GatewayManager implements Runnable {
 
     private int HEARTBEAT_INTERVAL, sequence;
 
+    private List<Intent> intentList;
+
     private Thread thread;
 
-    public GatewayManager(String token, RawEventManager rawEventManager){
+    public GatewayManager(String token){
         this.token = token;
         this.debugger = new Debugger("GatewayConnection");
-        this.rawEventManager = rawEventManager;
+        this.rawEventManager = new RawEventManager();
 
         receivedHeartBeatAck = true;
         running = true;
 
         sequence = 0;
+
+        intentList = new ArrayList<>();
 
         couldConnect = false;
 
@@ -96,6 +105,7 @@ public class GatewayManager implements Runnable {
             case 7:
                 // reconnect & resume request
                 websocketConnection.disconnect();
+                debugger.info("Received code 7 -> Will attempt to resume");
                 resume();
                 break;
 
@@ -156,11 +166,15 @@ public class GatewayManager implements Runnable {
     }
 
     private void authenticate(){
+        int intents = 0;
+        for (Intent intentIterator : intentList){
+            intents += intentIterator.getValue();
+        }
         JSONObject json = new JSONObject()
                 .put("op", 2)
                 .put("d", new JSONObject()
                         .put("token", token)
-                        .put("intents", 513)
+                        .put("intents", intents)
                         .put("properties", new JSONObject()
                                 .put("$os", "linux")
                                 .put("$browser", "YeetsDiscordLibrary")
@@ -181,8 +195,7 @@ public class GatewayManager implements Runnable {
         json.put("op", 1);
         json.put("d", sequence != 0 ? sequence: "null");
 
-//        debugger.debug("Sent heartbeat");
-        System.out.println(json.toString(2));
+
         websocketConnection.sendText(json.toString(2));
     }
 
@@ -225,6 +238,19 @@ public class GatewayManager implements Runnable {
     public void stop(){
         websocketConnection.disconnect(1000);
         running = false;
+    }
+
+    public void addIntent(Intent intent) {
+        if (intentList.contains(intent)){
+            debugger.error("The intent " + intent + " has already been added!");
+            return;
+        }
+
+        intentList.add(intent);
+    }
+
+    public void addIntents(Intent... intents){
+        intentList.addAll(Arrays.asList(intents));
     }
 
     public String getSessionID() {

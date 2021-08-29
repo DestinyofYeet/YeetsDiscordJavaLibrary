@@ -11,7 +11,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-public class WebsocketConnection implements Runnable{
+public class WebsocketConnection{
     private WebSocket webSocket;
     private final URI uriToConnect;
     private final OnMessageReceived onMessageReceived;
@@ -20,8 +20,6 @@ public class WebsocketConnection implements Runnable{
     private final Debugger debugger;
 
     private boolean hasConnected;
-
-    private Thread thread;
 
     private GatewayManager gatewayManager;
 
@@ -34,12 +32,9 @@ public class WebsocketConnection implements Runnable{
         debugger = new Debugger("WebsocketConnection");
         hasConnected = false;
 
-
-        thread = new Thread(this);
-        thread.start();
+        run();
     }
 
-    @Override
     public void run() {
         try {
 
@@ -71,16 +66,19 @@ public class WebsocketConnection implements Runnable{
                         @Override
                         public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer){
                             debugger.debug("Connection closed: By server? " + (closedByServer ? "yes": "no") +
-                                    "\nClient close reason: " + clientCloseFrame.getCloseReason() +
                                     "\nServer close code: " + serverCloseFrame.getCloseCode() +
                                     "\nServer close reason: " + serverCloseFrame.getCloseReason());
-                            debugger.debug("Will attempt to call resume()");
-                            gatewayManager.resume();
+
+                            if (closedByServer){
+                                debugger.info("Lost connection -> Will attempt to resume");
+                                gatewayManager.resume();
+                            }
+
                         }
                     })
-                    .connect();
+                    .connectAsynchronously();
 
-        } catch (IOException | WebSocketException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

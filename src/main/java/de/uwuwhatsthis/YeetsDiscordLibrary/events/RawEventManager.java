@@ -41,8 +41,6 @@ public class RawEventManager {
     private void onGuildCreate(GatewayMessage message){
         JSONObject data = (JSONObject) message.getMixedData();
 
-        System.out.println(data.toString(2));
-
         StateManager.getInstance().addGuild(new Guild(data));
     }
 }

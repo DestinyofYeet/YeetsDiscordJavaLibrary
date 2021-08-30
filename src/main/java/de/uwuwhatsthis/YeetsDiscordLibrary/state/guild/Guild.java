@@ -1,5 +1,9 @@
 package de.uwuwhatsthis.YeetsDiscordLibrary.state.guild;
 
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.channel.Channel;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.channel.GenericChannel;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.channel.TextChannel;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.channel.VoiceChannel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.emojis.Emoji;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.explicitContentFilterLevel.ExplicitContentFilterLevel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.features.GuildFeatures;
@@ -14,6 +18,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Guild {
     private String preferredLocale, ownerId, iconHash, description, systemChannelId, rulesChannelId, afkChannelId, guildId,
@@ -33,6 +38,7 @@ public class Guild {
     private List<Sticker> stickers;
     private List<VoiceState> voiceStates;
     private List<Emoji> emojis;
+    private List<Channel> TextChannel, VoiceChannel, GenericChannels;
 
     private VerificationLevel verificationLevel;
     private ExplicitContentFilterLevel explicitContentFilterLevel;
@@ -42,38 +48,38 @@ public class Guild {
     public Guild(JSONObject data){
         // --------------- String --------------------------
 
-        preferredLocale = Helper.applyValueString(data, "preferred_locale");
-        ownerId = Helper.applyValueString(data, "owner_id");
-        iconHash = Helper.applyValueString(data, "icon");
-        description = Helper.applyValueString(data, "description");
-        systemChannelId = Helper.applyValueString(data, "system_channel_id");
-        rulesChannelId = Helper.applyValueString(data, "rules_channel_id");
-        afkChannelId = Helper.applyValueString(data, "afk_channel_id");
-        guildId = Helper.applyValueString(data, "id");
-        vanityUrlCode = Helper.applyValueString(data, "vanity_url_code");
-        bannerHash = Helper.applyValueString(data, "banner");
-        discordNotificationChannelId = Helper.applyValueString(data, "public_updates_channel_id");
-        applicationId = Helper.applyValueString(data, "application_id");
-        botJoinedGuildTimestamp = Helper.applyValueString(data, "joined_at");
+        preferredLocale = Helper.getValueString(data, "preferred_locale");
+        ownerId = Helper.getValueString(data, "owner_id");
+        iconHash = Helper.getValueString(data, "icon");
+        description = Helper.getValueString(data, "description");
+        systemChannelId = Helper.getValueString(data, "system_channel_id");
+        rulesChannelId = Helper.getValueString(data, "rules_channel_id");
+        afkChannelId = Helper.getValueString(data, "afk_channel_id");
+        guildId = Helper.getValueString(data, "id");
+        vanityUrlCode = Helper.getValueString(data, "vanity_url_code");
+        bannerHash = Helper.getValueString(data, "banner");
+        discordNotificationChannelId = Helper.getValueString(data, "public_updates_channel_id");
+        applicationId = Helper.getValueString(data, "application_id");
+        botJoinedGuildTimestamp = Helper.getValueString(data, "joined_at");
 
         // --------------- Int -------------------------------
 
-        defaultMessageNotifications = Helper.applyValueInt(data, "default_message_notifications");
-        afkTimeout = Helper.applyValueInt(data, "afk_timeout");
-        maxMembers = Helper.applyValueInt(data, "max_members");
-        maxVideoChannelUsers = Helper.applyValueInt(data, "max_video_channel_users");
-        memberCount = Helper.applyValueInt(data, "member_count");
-        nsfwLevelInt = Helper.applyValueInt(data, "nsfw_level");
-        numberOfBoosts = Helper.applyValueInt(data, "premium_subscription_count");
-        verificationLevelInt = Helper.applyValueInt(data, "verification_level");
-        explicitContentFilterLevelInt = Helper.applyValueInt(data, "explicit_content_filter");
+        defaultMessageNotifications = Helper.getValueInt(data, "default_message_notifications");
+        afkTimeout = Helper.getValueInt(data, "afk_timeout");
+        maxMembers = Helper.getValueInt(data, "max_members");
+        maxVideoChannelUsers = Helper.getValueInt(data, "max_video_channel_users");
+        memberCount = Helper.getValueInt(data, "member_count");
+        nsfwLevelInt = Helper.getValueInt(data, "nsfw_level");
+        numberOfBoosts = Helper.getValueInt(data, "premium_subscription_count");
+        verificationLevelInt = Helper.getValueInt(data, "verification_level");
+        explicitContentFilterLevelInt = Helper.getValueInt(data, "explicit_content_filter");
 
         // ---------------- Bool ------------------------------
 
-        isUnavailable = Helper.applyValueBool(data, "unavailable");
-        isLazy = Helper.applyValueBool(data, "lazy");
-        isLarge = Helper.applyValueBool(data, "large");
-        isNSFW = Helper.applyValueBool(data, "nsfw");
+        isUnavailable = Helper.getValueBool(data, "unavailable");
+        isLazy = Helper.getValueBool(data, "lazy");
+        isLarge = Helper.getValueBool(data, "large");
+        isNSFW = Helper.getValueBool(data, "nsfw");
 
         // --------------- Long ------------------------------
 
@@ -119,7 +125,8 @@ public class Guild {
         data.getJSONArray("members").forEach(rawData -> {
             JSONObject memberData = (JSONObject) rawData;
 
-            members.add(new Member(memberData, getVoiceStateById(memberData.getJSONObject("user").getString("id")),this));
+            Optional<VoiceState> voiceState = getVoiceStateById(memberData.getJSONObject("user").getString("id"));
+            members.add(new Member(memberData, voiceState.orElse(null), this));
         });
 
         stickers = new ArrayList<>();
@@ -139,85 +146,110 @@ public class Guild {
             });
         }
 
+        if (data.has("channels")){
+            TextChannel = VoiceChannel = new ArrayList<>();
+
+            data.getJSONArray("channels").forEach(rawData -> {
+                JSONObject channelData = (JSONObject) rawData;
+
+                GenericChannel genericChannel = new GenericChannel(channelData);
+
+                genericChannel.getType().ifPresent(type -> {
+                    switch (type){
+                        case GUILD_TEXT:
+                            TextChannel.add(new TextChannel(genericChannel));
+                            break;
+
+                        case GUILD_VOICE:
+                            VoiceChannel.add(new VoiceChannel(genericChannel));
+                            break;
+                    }
+                });
+            });
+        }
+
     }
 
-    public Role getRoleById(String id){
+    public Optional<Role> getRoleById(String id){
         for (Role role : roles) {
-            if (role.getId().equals(id)) return role;
+            if (role.getId().equals(id)) return Optional.of(role);
         }
-        return null;
+        return Optional.empty();
     }
 
-    public VoiceState getVoiceStateById(String id){
+    public Optional<VoiceState> getVoiceStateById(String id){
         for (VoiceState voiceState : voiceStates) {
-            if (voiceState.getMember().getUser().getId().equals(id)) return voiceState;
+            Optional<Member> memberOptional = voiceState.getMember();
+            if (memberOptional.isPresent()){
+                if (memberOptional.get().getUser().getId().equals(id)) return Optional.of(voiceState);
+            }
         }
 
-        return null;
+        return Optional.empty();
     }
 
-    public String getPreferredLocale() {
-        return preferredLocale;
+    public Optional<String> getPreferredLocale() {
+        return Optional.of(preferredLocale);
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public Optional<String> getOwnerId() {
+        return Optional.of(ownerId);
     }
 
-    public String getIconHash() {
-        return iconHash;
+    public Optional<Long> getOwnerIdLong() {
+        return Optional.of(ownerIdLong);
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getIconHash() {
+        return Optional.of(iconHash);
     }
 
-    public String getSystemChannelId() {
-        return systemChannelId;
+    public Optional<String> getDescription() {
+        return Optional.of(description);
     }
 
-    public String getRulesChannelId() {
-        return rulesChannelId;
+    public Optional<String> getSystemChannelId() {
+        return Optional.of(systemChannelId);
     }
 
-    public String getAfkChannelId() {
-        return afkChannelId;
+    public Optional<String> getRulesChannelId() {
+        return Optional.of(rulesChannelId);
     }
 
-    public String getGuildId() {
-        return guildId;
+    public Optional<String> getAfkChannelId() {
+        return Optional.of(afkChannelId);
     }
 
-    public Long getOwnerIdLong() {
-        return ownerIdLong;
+    public Optional<String> getGuildId() {
+        return Optional.of(guildId);
     }
 
-    public Long getSystemChannelIdLong() {
-        return systemChannelIdLong;
+    public Optional<Long> getSystemChannelIdLong() {
+        return Optional.of(systemChannelIdLong);
     }
 
-    public Long getAfkChannelIdLong() {
-        return afkChannelIdLong;
+    public Optional<Long> getAfkChannelIdLong() {
+        return Optional.of(afkChannelIdLong);
     }
 
-    public Long getGuildIdLong() {
-        return guildIdLong;
+    public Optional<Long> getGuildIdLong() {
+        return Optional.of(guildIdLong);
     }
 
-    public int getDefaultMessageNotifications() {
-        return defaultMessageNotifications;
+    public Optional<Integer> getDefaultMessageNotifications() {
+        return Optional.of(defaultMessageNotifications);
     }
 
-    public int getAfkTimeout() {
-        return afkTimeout;
+    public Optional<Integer> getAfkTimeout() {
+        return Optional.of(afkTimeout);
     }
 
-    public boolean isUnavailable() {
-        return isUnavailable;
+    public Optional<Boolean> isUnavailable() {
+        return Optional.of(isUnavailable);
     }
 
-    public boolean isLazy() {
-        return isLazy;
+    public Optional<Boolean> isLazy() {
+        return Optional.of(isLazy);
     }
 
     public List<Role> getRoles() {

@@ -22,14 +22,14 @@ public class Member {
     public Member(JSONObject data, VoiceState voiceState, Guild guild){
         this.guild = guild;
         this.voiceState = voiceState;
-        nickname = Helper.applyValueString(data, "nick");
-        joinedAtTimestamp = Helper.applyValueString(data, "joined_at");
-        premiumSinceTimestamp = Helper.applyValueString(data, "premium_since");
-        permissions = Helper.applyValueString(data, "permissions");
+        nickname = Helper.getValueString(data, "nick");
+        joinedAtTimestamp = Helper.getValueString(data, "joined_at");
+        premiumSinceTimestamp = Helper.getValueString(data, "premium_since");
+        permissions = Helper.getValueString(data, "permissions");
 
-        isDeaf = Helper.applyValueBool(data, "deaf");
-        isMuted = Helper.applyValueBool(data, "mute");
-        isPending = Helper.applyValueBool(data, "pending");
+        isDeaf = Helper.getValueBool(data, "deaf");
+        isMuted = Helper.getValueBool(data, "mute");
+        isPending = Helper.getValueBool(data, "pending");
 
         user = new User(data.getJSONObject("user"));
 

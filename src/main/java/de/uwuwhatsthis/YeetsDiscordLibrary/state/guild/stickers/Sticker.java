@@ -16,18 +16,18 @@ public class Sticker {
     private Guild guild;
 
     public Sticker(JSONObject data){
-        id = Helper.applyValueString(data, "id");
-        packId = Helper.applyValueString(data, "pack_id");
-        name = Helper.applyValueString(data, "name");
-        description = Helper.applyValueString(data, "description");
-        tags = Helper.applyValueString(data, "tags");
-        guildId = Helper.applyValueString(data, "guild_id");
+        id = Helper.getValueString(data, "id");
+        packId = Helper.getValueString(data, "pack_id");
+        name = Helper.getValueString(data, "name");
+        description = Helper.getValueString(data, "description");
+        tags = Helper.getValueString(data, "tags");
+        guildId = Helper.getValueString(data, "guild_id");
 
-        typeInt = Helper.applyValueInt(data, "type");
-        formatTypeInt = Helper.applyValueInt(data, "format_type");
-        sortValue = Helper.applyValueInt(data, "sort_value");
+        typeInt = Helper.getValueInt(data, "type");
+        formatTypeInt = Helper.getValueInt(data, "format_type");
+        sortValue = Helper.getValueInt(data, "sort_value");
 
-        available = Helper.applyValueBool(data, "available");
+        available = Helper.getValueBool(data, "available");
 
         stickerType = StickerType.getFromValue(typeInt);
         stickerFormatType = StickerFormatType.getFromValue(formatTypeInt);

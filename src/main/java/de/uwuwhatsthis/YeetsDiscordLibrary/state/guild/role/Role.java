@@ -1,6 +1,9 @@
 package de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.role;
 
+import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
+
+import java.util.Optional;
 
 public class Role {
     /*
@@ -8,7 +11,7 @@ public class Role {
      */
     private int color, position;
 
-    private String permissions, name, icon, id;
+    private String permissions, name, iconHash, id;
 
     private Long idLong;
 
@@ -21,62 +24,64 @@ public class Role {
     private RoleTags tags;
 
     public Role(JSONObject data){
-        color = data.getInt("color");
-        permissions = data.getString("permissions");
-        isManaged = data.getBoolean("managed");
-        name = data.getString("name");
-        icon = data.get("icon").equals(JSONObject.NULL) ? null : data.getString("icon");
-        isMentionable = data.getBoolean("mentionable");
-        position = data.getInt("position");
-        id = data.getString("id");
-        idLong = Long.parseLong(id);
-        isPinned = data.getBoolean("hoist");
+        color = Helper.getValueInt(data, "color");
+        permissions = Helper.getValueString(data, "permissions");
+        isManaged = Helper.getValueBool(data, "managed");
+        name = Helper.getValueString(data, "name");
+        iconHash = Helper.getValueString(data, "icon");
+        isMentionable = Helper.getValueBool(data, "mentionable");
+        position = Helper.getValueInt(data, "position");
+        id = Helper.getValueString(data, "id");
+        idLong = Helper.parseLong(id);
+        isPinned = Helper.getValueBool(data, "hoist");
+
+        tags = null;
         if (data.has("tags")){
             tags = new RoleTags(data.getJSONObject("tags"));
         }
     }
 
-    public int getColor() {
-        return color;
+    public Optional<Integer> getColor() {
+        return Optional.of(color);
     }
 
-    public int getPosition() {
-        return position;
+    public Optional<Integer> getPosition() {
+        return Optional.of(position);
     }
 
-    public String getPermissions() {
-        return permissions;
+    public Optional<String> getPermissions() {
+        return Optional.of(permissions);
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.of(name);
     }
 
-    public String getIcon() {
-        return icon;
+    public Optional<String> getIconHash() {
+        return Optional.of(iconHash);
     }
 
-    public String getId() {
-        return id;
+    public Optional<String> getId() {
+        return Optional.of(id);
     }
 
-    public Long getIdLong() {
-        return idLong;
+    public Optional<Long> getIdLong() {
+        return Optional.of(idLong);
     }
 
-    public boolean isManaged() {
-        return isManaged;
+    public Optional<Boolean> isManaged() {
+        return Optional.of(isManaged);
     }
 
-    public boolean isMentionable() {
-        return isMentionable;
+    public Optional<Boolean> isMentionable() {
+        return Optional.of(isMentionable);
     }
 
-    public boolean isPinned() {
-        return isPinned;
+    public Optional<Boolean> isPinned() {
+        return Optional.of(isPinned);
     }
 
-    public RoleTags getTags() {
-        return tags;
+    public Optional<RoleTags> getTags() {
+        return Optional.of(tags);
     }
 }

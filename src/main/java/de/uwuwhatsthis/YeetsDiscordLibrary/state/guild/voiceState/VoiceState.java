@@ -7,8 +7,11 @@ import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Debugger;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class VoiceState {
     private static Debugger debugger = new Debugger("VoiceState");
+
     private Guild guild;
     private String guildId, channelId, userId, sessionId, requestToSpeakTimestamp;
     private Long guildIdLong, channelIdLong, sessionIdLong;
@@ -18,19 +21,19 @@ public class VoiceState {
 
     public VoiceState(JSONObject data, Guild guild){
         this.guild = guild;
-        guildId = Helper.applyValueString(data, "guild_id");
-        channelId = Helper.applyValueString(data, "channel_id");
-        userId = Helper.applyValueString(data, "user_id");
-        sessionId = Helper.applyValueString(data, "session_id");
-        requestToSpeakTimestamp = Helper.applyValueString(data, "request_to_speak_timestamp");
+        guildId = Helper.getValueString(data, "guild_id");
+        channelId = Helper.getValueString(data, "channel_id");
+        userId = Helper.getValueString(data, "user_id");
+        sessionId = Helper.getValueString(data, "session_id");
+        requestToSpeakTimestamp = Helper.getValueString(data, "request_to_speak_timestamp");
 
-        isServerDeaf = Helper.applyValueBool(data, "deaf");
-        isServerMuted = Helper.applyValueBool(data, "mute");
-        isSelfDeaf = Helper.applyValueBool(data, "self_deaf");
-        isSelfMuted = Helper.applyValueBool(data, "self_mute");
-        isStreaming = Helper.applyValueBool(data, "self_stream");
-        isCameraEnabled = Helper.applyValueBool(data, "self_video");
-        isMutedByBot = Helper.applyValueBool(data, "suppress");
+        isServerDeaf = Helper.getValueBool(data, "deaf");
+        isServerMuted = Helper.getValueBool(data, "mute");
+        isSelfDeaf = Helper.getValueBool(data, "self_deaf");
+        isSelfMuted = Helper.getValueBool(data, "self_mute");
+        isStreaming = Helper.getValueBool(data, "self_stream");
+        isCameraEnabled = Helper.getValueBool(data, "self_video");
+        isMutedByBot = Helper.getValueBool(data, "suppress");
 
         guildIdLong = Helper.parseLong(guildId);
         channelIdLong = Helper.parseLong(channelId);
@@ -42,75 +45,71 @@ public class VoiceState {
         }
     }
 
-    public static Debugger getDebugger() {
-        return debugger;
+    public Optional<Guild> getGuild() {
+        return Optional.of(guild);
     }
 
-    public Guild getGuild() {
-        return guild;
+    public Optional<String> getGuildId() {
+        return Optional.of(guildId);
     }
 
-    public String getGuildId() {
-        return guildId;
+    public Optional<String>  getChannelId() {
+        return Optional.of(channelId);
     }
 
-    public String getChannelId() {
-        return channelId;
+    public Optional<String>  getUserId() {
+        return Optional.of(userId);
     }
 
-    public String getUserId() {
-        return userId;
+    public Optional<String>  getSessionId() {
+        return Optional.of(sessionId);
     }
 
-    public String getSessionId() {
-        return sessionId;
+    public Optional<String>  getRequestToSpeakTimestamp() {
+        return Optional.of(requestToSpeakTimestamp);
     }
 
-    public String getRequestToSpeakTimestamp() {
-        return requestToSpeakTimestamp;
+    public Optional<Long> getGuildIdLong() {
+        return Optional.of(guildIdLong);
     }
 
-    public Long getGuildIdLong() {
-        return guildIdLong;
+    public Optional<Long> getChannelIdLong() {
+        return Optional.of(channelIdLong);
     }
 
-    public Long getChannelIdLong() {
-        return channelIdLong;
+    public Optional<Long> getSessionIdLong() {
+        return Optional.of(sessionIdLong);
     }
 
-    public Long getSessionIdLong() {
-        return sessionIdLong;
+    public Optional<Boolean> isServerDeaf() {
+        return Optional.of(isServerDeaf);
     }
 
-    public boolean isServerDeaf() {
-        return isServerDeaf;
+    public Optional<Boolean> isServerMuted() {
+        return Optional.of(isServerMuted);
     }
 
-    public boolean isServerMuted() {
-        return isServerMuted;
+    public Optional<Boolean> isSelfDeaf() {
+        return Optional.of(isSelfDeaf);
     }
 
-    public boolean isSelfDeaf() {
-        return isSelfDeaf;
+    public Optional<Boolean> isSelfMuted() {
+        return Optional.of(isSelfMuted);
     }
 
-    public boolean isSelfMuted() {
-        return isSelfMuted;
+    public Optional<Boolean> isStreaming() {
+        return Optional.of(isStreaming);
     }
 
-    public boolean isStreaming() {
-        return isStreaming;
+    public Optional<Boolean> isMutedByBot() {
+        return Optional.of(isMutedByBot);
     }
 
-    public boolean isMutedByBot() {
-        return isMutedByBot;
+    public Optional<Boolean> isCameraEnabled() {
+        return Optional.of(isCameraEnabled);
     }
 
-    public boolean isCameraEnabled() {
-        return isCameraEnabled;
-    }
-
-    public Member getMember() {
-        return member;
+    public Optional<Member> getMember() {
+        return Optional.of(member);
     }
 }

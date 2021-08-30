@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Emoji {
     private String id, name;
@@ -18,13 +19,13 @@ public class Emoji {
     private List<Role> accessibleByRoles;
 
     public Emoji(JSONObject data, Guild guild){
-        id = Helper.applyValueString(data, "id");
-        name = Helper.applyValueString(data, "name");
+        id = Helper.getValueString(data, "id");
+        name = Helper.getValueString(data, "name");
 
-        doesRequireColons = Helper.applyValueBool(data, "require_colons");
-        isManaged = Helper.applyValueBool(data, "managed");
-        isAnimated = Helper.applyValueBool(data, "animated");
-        isAvailable = Helper.applyValueBool(data, "available");
+        doesRequireColons = Helper.getValueBool(data, "require_colons");
+        isManaged = Helper.getValueBool(data, "managed");
+        isAnimated = Helper.getValueBool(data, "animated");
+        isAvailable = Helper.getValueBool(data, "available");
 
         idLong = Helper.parseLong(id);
 
@@ -34,10 +35,8 @@ public class Emoji {
                 String roleId = (String) rawData;
                 accessibleByRolesIds.add(roleId);
 
-                Role guildRole = guild.getRoleById(roleId);
-                if (guildRole != null){
-                    accessibleByRoles.add(guildRole);
-                }
+                Optional<Role> guildRole = guild.getRoleById(roleId);
+                guildRole.ifPresent(role -> accessibleByRoles.add(role));
             });
         }
 

@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class StateManager {
 
@@ -17,10 +21,13 @@ public class StateManager {
 
     private Map<String, Guild> cachedGuilds;
 
+    private ExecutorService executorService;
+
     public StateManager(){
         instance = this;
         application = null;
         cachedGuilds = new HashMap<>();
+        executorService = Executors.newFixedThreadPool(10);
     }
 
     public static StateManager getInstance(){
@@ -31,8 +38,21 @@ public class StateManager {
         return instance;
     }
 
+    public void shutdown(){
+        executorService.shutdown();
+
+        try {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)){
+                executorService.shutdownNow();
+            }
+
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+        }
+    }
+
     public void addGuild(Guild guild){
-        cachedGuilds.put(guild.getGuildId(), guild);
+        guild.getGuildId().ifPresent(id -> cachedGuilds.put(id, guild));
     }
 
     public Guild getGuildById(String id){
@@ -45,5 +65,9 @@ public class StateManager {
 
     public void setApplication(Application application) {
         this.application = application;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }

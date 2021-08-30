@@ -1,7 +1,7 @@
 package de.uwuwhatsthis.YeetsDiscordLibrary.gateway;
 
-import de.uwuwhatsthis.YeetsDiscordLibrary.errors.intents.IntentAlreadyAddedException;
 import de.uwuwhatsthis.YeetsDiscordLibrary.events.RawEventManager;
+import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.hearbeater.Heartbeater;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.intents.Intent;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.lambdas.OnWebsocketError;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.objects.GatewayMessage;
@@ -14,9 +14,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
-public class GatewayManager implements Runnable {
+public class GatewayManager {
 
     private final static String GATEWAY = "wss://gateway.discord.gg/?v=9&encoding=json";
     private final String token;
@@ -36,8 +35,9 @@ public class GatewayManager implements Runnable {
     private int HEARTBEAT_INTERVAL, sequence;
 
     private List<Intent> intentList;
+    private List<Long> intentListLong;
 
-    private Thread thread;
+    private Heartbeater heartbeater;
 
     public GatewayManager(String token){
         this.token = token;
@@ -50,38 +50,11 @@ public class GatewayManager implements Runnable {
         sequence = 0;
 
         intentList = new ArrayList<>();
+        intentListLong = new ArrayList<>();
 
         couldConnect = false;
 
-        thread = new Thread(this);
-    }
-
-    @Override
-    public void run(){
-        // thread to send heartbeats
-        Random random = new Random();
-
-        while (running){
-            sendHeartbeat();
-
-            long calculatedSleep = HEARTBEAT_INTERVAL;
-            if (sequence == 0){
-                // Used for the first connection
-                calculatedSleep = (long) (HEARTBEAT_INTERVAL * random.nextFloat());
-            }
-
-//            debugger.debug("Sleeping for " + calculatedSleep);
-
-            try{
-                Thread.sleep(calculatedSleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-        }
-
-        debugger.debug("Heartbeat thread is exiting!");
+        heartbeater = null;
     }
 
     private void onGatewayMessage(GatewayMessage message){
@@ -99,7 +72,7 @@ public class GatewayManager implements Runnable {
                 the gateway may request a heartbeat from the client in some situations by sending an Opcode 1 Heartbeat.
                 When this occurs, the client should immediately send an Opcode 1 Heartbeat without waiting the remainder of the current interval.
                  */
-                sendHeartbeat();
+                heartbeater.sendHeartbeat();
                 break;
 
             case 7:
@@ -123,11 +96,11 @@ public class GatewayManager implements Runnable {
 
                 websocketConnection.waitTillConnected();
 
-                if (!thread.isAlive()){
-                    thread.start();
-                    debugger.debug("Started heartbeat thread");
+                if (heartbeater == null){
+                    heartbeater = new Heartbeater(this);
+                    heartbeater.setInterval(HEARTBEAT_INTERVAL);
+                    heartbeater.start();
                 }
-
 
                 authenticate();
                 break;
@@ -167,9 +140,17 @@ public class GatewayManager implements Runnable {
 
     private void authenticate(){
         int intents = 0;
-        for (Intent intentIterator : intentList){
-            intents += intentIterator.getValue();
+
+        if (!intentListLong.isEmpty()){
+            for (Long aLong : intentListLong) {
+                intents += aLong;
+            }
+        } else {
+            for (Intent intentIterator : intentList){
+                intents += intentIterator.getRaw();
+            }
         }
+
         JSONObject json = new JSONObject()
                 .put("op", 2)
                 .put("d", new JSONObject()
@@ -181,22 +162,6 @@ public class GatewayManager implements Runnable {
                                 .put("$device", "YeetsDiscordLibrary")));
 
         websocketConnection.sendText(json.toString());
-    }
-
-    public void sendHeartbeat(){
-        if (!receivedHeartBeatAck){
-            // we didn't receive a confirmation ack of our heartbeat -> attempt to resume
-            resume();
-            return;
-        }
-
-        receivedHeartBeatAck = false;
-        JSONObject json = new JSONObject();
-        json.put("op", 1);
-        json.put("d", sequence != 0 ? sequence: "null");
-
-
-        websocketConnection.sendText(json.toString(2));
     }
 
     /**
@@ -249,6 +214,10 @@ public class GatewayManager implements Runnable {
         intentList.add(intent);
     }
 
+    public void addIntent(long intent){
+        intentListLong.add(intent);
+    }
+
     public void addIntents(Intent... intents){
         intentList.addAll(Arrays.asList(intents));
     }
@@ -259,5 +228,21 @@ public class GatewayManager implements Runnable {
 
     public void setSessionID(String sessionID) {
         this.sessionID = sessionID;
+    }
+
+    public boolean receivedHeartBeatAck() {
+        return receivedHeartBeatAck;
+    }
+
+    public void setReceivedHeartBeatAck(boolean receivedHeartBeatAck) {
+        this.receivedHeartBeatAck = receivedHeartBeatAck;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public WebsocketConnection getWebsocketConnection() {
+        return websocketConnection;
     }
 }

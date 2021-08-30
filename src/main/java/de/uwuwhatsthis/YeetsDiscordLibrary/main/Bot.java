@@ -1,6 +1,5 @@
 package de.uwuwhatsthis.YeetsDiscordLibrary.main;
 
-import de.uwuwhatsthis.YeetsDiscordLibrary.errors.intents.IntentAlreadyAddedException;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.GatewayManager;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.intents.Intent;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.lambdas.OnWebsocketError;
@@ -23,6 +22,10 @@ public class Bot {
 
     public void addIntents(Intent... intents){
         gatewayManager.addIntents(intents);
+    }
+
+    public void addIntent(long intent){
+        gatewayManager.addIntent(intent);
     }
 
 

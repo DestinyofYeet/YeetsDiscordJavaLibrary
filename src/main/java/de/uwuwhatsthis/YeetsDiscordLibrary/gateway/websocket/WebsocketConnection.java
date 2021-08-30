@@ -4,6 +4,7 @@ import com.neovisionaries.ws.client.*;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.GatewayManager;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.lambdas.OnMessageReceived;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.lambdas.OnWebsocketError;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.StateManager;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Debugger;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ public class WebsocketConnection{
                         @Override
                         public void onError(WebSocket websocket, WebSocketException cause){
                             if (onWebsocketError != null){
+                                StateManager.getInstance().shutdown();
                                 onWebsocketError.onWebsocketError(cause);
                                 return;
                             }

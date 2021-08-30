@@ -18,7 +18,7 @@ public class User {
         id = data.getString("id");
         idLong = Long.parseLong(id);
 
-        avatarHash = Helper.applyValueString(data, "avatar");
+        avatarHash = Helper.getValueString(data, "avatar");
         userName = data.getString("username");
         discriminator = data.getString("discriminator");
     }

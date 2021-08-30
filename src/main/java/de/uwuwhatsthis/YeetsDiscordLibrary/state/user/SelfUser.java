@@ -15,7 +15,7 @@ public class SelfUser extends User{
         isEmailVerified = data.getBoolean("verified");
         flags = data.getInt("flags");
         is2faEnabled = data.getBoolean("mfa_enabled");
-        email = Helper.applyValueString(data, "email");
+        email = Helper.getValueString(data, "email");
     }
 
     public boolean isEmailVerified() {

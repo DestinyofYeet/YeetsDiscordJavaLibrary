@@ -5,6 +5,7 @@ import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 public class PermissionOverwrite {
     private String id, allow, deny;
@@ -22,6 +23,18 @@ public class PermissionOverwrite {
         allowedPermissions = Permission.getPermissions(Helper.parseLong(allow));
         deniedPermissions = Permission.getPermissions(Helper.parseLong(deny));
         permissionType = PermissionType.getFromValue(typeInt);
+    }
+
+    public Optional<String> getAllow() {
+        return Optional.ofNullable(allow);
+    }
+
+    public Optional<String> getDeny() {
+        return Optional.ofNullable(deny);
+    }
+
+    public Optional<Integer> getTypeInt() {
+        return Optional.ofNullable(typeInt);
     }
 
     public String getId() {

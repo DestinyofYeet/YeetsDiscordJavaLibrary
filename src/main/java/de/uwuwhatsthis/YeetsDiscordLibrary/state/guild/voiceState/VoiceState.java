@@ -41,75 +41,79 @@ public class VoiceState {
 
         if (guildId != null && !guild.getGuildId().equals(guildId)){
             debugger.error("Provided guild and guildId mismatch!");
-            this.guild = StateManager.getInstance().getGuildById(guildId);
+            this.guild = StateManager.getInstance().getGuildById(guildId).orElse(null);
         }
     }
 
+    public static Optional<Debugger> getDebugger() {
+        return Optional.ofNullable(debugger);
+    }
+
     public Optional<Guild> getGuild() {
-        return Optional.of(guild);
+        return Optional.ofNullable(guild);
     }
 
     public Optional<String> getGuildId() {
-        return Optional.of(guildId);
+        return Optional.ofNullable(guildId);
     }
 
-    public Optional<String>  getChannelId() {
-        return Optional.of(channelId);
+    public Optional<String> getChannelId() {
+        return Optional.ofNullable(channelId);
     }
 
-    public Optional<String>  getUserId() {
-        return Optional.of(userId);
+    public Optional<String> getUserId() {
+        return Optional.ofNullable(userId);
     }
 
-    public Optional<String>  getSessionId() {
-        return Optional.of(sessionId);
+    public Optional<String> getSessionId() {
+        return Optional.ofNullable(sessionId);
     }
 
-    public Optional<String>  getRequestToSpeakTimestamp() {
-        return Optional.of(requestToSpeakTimestamp);
+    public Optional<String> getRequestToSpeakTimestamp() {
+        return Optional.ofNullable(requestToSpeakTimestamp);
     }
 
     public Optional<Long> getGuildIdLong() {
-        return Optional.of(guildIdLong);
+        return Optional.ofNullable(guildIdLong);
     }
 
     public Optional<Long> getChannelIdLong() {
-        return Optional.of(channelIdLong);
+        return Optional.ofNullable(channelIdLong);
     }
 
     public Optional<Long> getSessionIdLong() {
-        return Optional.of(sessionIdLong);
+        return Optional.ofNullable(sessionIdLong);
     }
 
     public Optional<Boolean> isServerDeaf() {
-        return Optional.of(isServerDeaf);
+        return Optional.ofNullable(isServerDeaf);
     }
 
     public Optional<Boolean> isServerMuted() {
-        return Optional.of(isServerMuted);
+        return Optional.ofNullable(isServerMuted);
     }
 
     public Optional<Boolean> isSelfDeaf() {
-        return Optional.of(isSelfDeaf);
+        return Optional.ofNullable(isSelfDeaf);
     }
 
     public Optional<Boolean> isSelfMuted() {
-        return Optional.of(isSelfMuted);
+        return Optional.ofNullable(isSelfMuted);
     }
 
     public Optional<Boolean> isStreaming() {
-        return Optional.of(isStreaming);
+        return Optional.ofNullable(isStreaming);
     }
 
     public Optional<Boolean> isMutedByBot() {
-        return Optional.of(isMutedByBot);
+        return Optional.ofNullable(isMutedByBot);
     }
 
     public Optional<Boolean> isCameraEnabled() {
-        return Optional.of(isCameraEnabled);
+        return Optional.ofNullable(isCameraEnabled);
     }
 
     public Optional<Member> getMember() {
-        return Optional.of(member);
+        return Optional.ofNullable(member);
     }
 }

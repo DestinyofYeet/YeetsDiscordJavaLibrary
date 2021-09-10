@@ -3,6 +3,9 @@ package de.uwuwhatsthis.YeetsDiscordLibrary.state.user;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
+import javax.swing.text.html.Option;
+import java.util.Optional;
+
 public class User {
 
     private boolean isBot;
@@ -13,41 +16,37 @@ public class User {
     private String discriminator;
 
     public User(JSONObject data){
-        isBot = data.getBoolean("bot");
+        isBot = Helper.getValueBool(data, "bot");
 
-        id = data.getString("id");
-        idLong = Long.parseLong(id);
+        id = Helper.getValueString(data, "id");
+        idLong = Helper.parseLong(id);
 
         avatarHash = Helper.getValueString(data, "avatar");
-        userName = data.getString("username");
-        discriminator = data.getString("discriminator");
+        userName = Helper.getValueString(data, "username");
+        discriminator = Helper.getValueString(data, "discriminator");
     }
 
-    public boolean isBot() {
-        return isBot;
+    public Optional<Boolean> isBot() {
+        return Optional.ofNullable(isBot);
     }
 
-    public String getId() {
-        return id;
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
     }
 
-    public Long getIdLong() {
-        return idLong;
+    public Optional<Long> getIdLong() {
+        return Optional.ofNullable(idLong);
     }
 
-    public String getAvatarHash() {
-        return avatarHash;
+    public Optional<String> getAvatarHash() {
+        return Optional.ofNullable(avatarHash);
     }
 
-    public String getUserName() {
-        return userName;
+    public Optional<String> getUserName() {
+        return Optional.ofNullable(userName);
     }
 
-    public String getDiscriminator() {
-        return discriminator;
-    }
-
-    public String getAsMention(){
-        return "<@!" + id + ">";
+    public Optional<String> getDiscriminator() {
+        return Optional.ofNullable(discriminator);
     }
 }

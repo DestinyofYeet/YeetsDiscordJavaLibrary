@@ -62,6 +62,7 @@ public class GatewayManager {
 
         switch (message.getOpCode()){
             case 0:
+                couldAuthenticate = true;
                 sequence = message.getSequence();
                 rawEventManager.triggerEventRaw(message);
                 // some event
@@ -128,7 +129,8 @@ public class GatewayManager {
 
         try {
             websocketConnection = new WebsocketConnection(new URI(GATEWAY), this, (((ws, message) -> {
-                onGatewayMessage(new GatewayMessage(message, ws, this));
+                GatewayMessage gatewayMessage = new GatewayMessage(message, ws, this);
+                onGatewayMessage(gatewayMessage);
             })), websocketError);
             return true;
         } catch (URISyntaxException e) {
@@ -150,6 +152,8 @@ public class GatewayManager {
                 intents += intentIterator.getRaw();
             }
         }
+
+        debugger.debug("Authenticating with intents " + intents);
 
         JSONObject json = new JSONObject()
                 .put("op", 2)
@@ -244,5 +248,33 @@ public class GatewayManager {
 
     public WebsocketConnection getWebsocketConnection() {
         return websocketConnection;
+    }
+
+    public Debugger getDebugger() {
+        return debugger;
+    }
+
+    public RawEventManager getRawEventManager() {
+        return rawEventManager;
+    }
+
+    public boolean couldConnect() {
+        return couldConnect;
+    }
+
+    public boolean couldAuthenticate() {
+        return couldAuthenticate;
+    }
+
+    public List<Intent> getIntentList() {
+        return intentList;
+    }
+
+    public List<Long> getIntentListLong() {
+        return intentListLong;
+    }
+
+    public Heartbeater getHeartbeater() {
+        return heartbeater;
     }
 }

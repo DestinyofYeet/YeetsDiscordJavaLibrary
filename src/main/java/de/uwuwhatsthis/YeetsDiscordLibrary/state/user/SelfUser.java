@@ -11,10 +11,9 @@ public class SelfUser extends User{
 
     public SelfUser(JSONObject data) {
         super(data);
-
-        isEmailVerified = data.getBoolean("verified");
-        flags = data.getInt("flags");
-        is2faEnabled = data.getBoolean("mfa_enabled");
+        isEmailVerified = Helper.getValueBool(data, "verified");
+        flags = Helper.getValueInt(data, "flags");
+        is2faEnabled = Helper.getValueBool(data, "mfa_enabled");
         email = Helper.getValueString(data, "email");
     }
 

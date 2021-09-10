@@ -2,6 +2,7 @@ package de.uwuwhatsthis.YeetsDiscordLibrary.state.guild;
 
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.channel.Channel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.channel.GenericChannel;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.channel.GuildChannel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.channel.TextChannel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.channel.VoiceChannel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.emojis.Emoji;
@@ -12,23 +13,25 @@ import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.role.Role;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.stickers.Sticker;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.verification.VerificationLevel;
 import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.voiceState.VoiceState;
+import de.uwuwhatsthis.YeetsDiscordLibrary.state.user.User;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Debugger;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class Guild {
     private String preferredLocale, ownerId, iconHash, description, systemChannelId, rulesChannelId, afkChannelId, guildId,
-            vanityUrlCode, bannerHash, discordNotificationChannelId, applicationId, botJoinedGuildTimestamp;
+            vanityUrlCode, bannerHash, discordNotificationChannelId, applicationId, botJoinedGuildTimestamp, name, region;
 
     private Long ownerIdLong, systemChannelIdLong, afkChannelIdLong, guildIdLong, discordNotificationChannelIdLong,
             applicationIdLong;
 
     private int defaultMessageNotifications, afkTimeout, maxMembers, maxVideoChannelUsers, memberCount, nsfwLevelInt,
-            numberOfBoosts, verificationLevelInt, explicitContentFilterLevelInt;
+            numberOfBoosts, verificationLevelInt, explicitContentFilterLevelInt, mfaLevel;
 
     private boolean isUnavailable, isLazy, isLarge, isNSFW;
 
@@ -38,7 +41,7 @@ public class Guild {
     private List<Sticker> stickers;
     private List<VoiceState> voiceStates;
     private List<Emoji> emojis;
-    private List<Channel> TextChannel, VoiceChannel, GenericChannels;
+    private List<GuildChannel> channelList;
 
     private VerificationLevel verificationLevel;
     private ExplicitContentFilterLevel explicitContentFilterLevel;
@@ -61,6 +64,8 @@ public class Guild {
         discordNotificationChannelId = Helper.getValueString(data, "public_updates_channel_id");
         applicationId = Helper.getValueString(data, "application_id");
         botJoinedGuildTimestamp = Helper.getValueString(data, "joined_at");
+        name = Helper.getValueString(data, "name");
+        region = Helper.getValueString(data, "region");
 
         // --------------- Int -------------------------------
 
@@ -73,6 +78,7 @@ public class Guild {
         numberOfBoosts = Helper.getValueInt(data, "premium_subscription_count");
         verificationLevelInt = Helper.getValueInt(data, "verification_level");
         explicitContentFilterLevelInt = Helper.getValueInt(data, "explicit_content_filter");
+        mfaLevel = Helper.getValueInt(data, "mfa_level");
 
         // ---------------- Bool ------------------------------
 
@@ -90,7 +96,6 @@ public class Guild {
         discordNotificationChannelIdLong = Helper.parseLong(discordNotificationChannelId);
         applicationIdLong = Helper.parseLong(applicationId);
 
-
         // -------------- Custom things -----------------
 
         verificationLevel = VerificationLevel.getFromValue(verificationLevelInt);
@@ -99,18 +104,23 @@ public class Guild {
         // --------------- Lists ---------------------------
 
         roles = new ArrayList<>();
-        data.getJSONArray("roles").forEach(rawData -> {
-            JSONObject roleData = (JSONObject) rawData;
-            roles.add(new Role(roleData));
-        });
+        if (data.has("roles")){
+            data.getJSONArray("roles").forEach(rawData -> {
+                JSONObject roleData = (JSONObject) rawData;
+
+                roles.add(new Role(roleData));
+            });
+        }
 
 
         guildFeatures = new ArrayList<>();
-        data.getJSONArray("features").forEach(rawData -> {
-            String feature = (String) rawData;
+        if (data.has("features")){
+            data.getJSONArray("features").forEach(rawData -> {
+                String feature = (String) rawData;
 
-            guildFeatures.add(GuildFeatures.valueOf(feature));
-        });
+                guildFeatures.add(GuildFeatures.valueOf(feature));
+            });
+        }
 
         voiceStates = new ArrayList<>();
         if (data.has("voice_states")){
@@ -122,12 +132,14 @@ public class Guild {
         }
 
         members = new ArrayList<>();
-        data.getJSONArray("members").forEach(rawData -> {
-            JSONObject memberData = (JSONObject) rawData;
+        if (data.has("members")){
+            data.getJSONArray("members").forEach(rawData -> {
+                JSONObject memberData = (JSONObject) rawData;
 
-            Optional<VoiceState> voiceState = getVoiceStateById(memberData.getJSONObject("user").getString("id"));
-            members.add(new Member(memberData, voiceState.orElse(null), this));
-        });
+                Optional<VoiceState> voiceState = getVoiceStateById(memberData.getJSONObject("user").getString("id"));
+                members.add(new Member(memberData, voiceState.orElse(null), this));
+            });
+        }
 
         stickers = new ArrayList<>();
         if (data.has("stickers")){
@@ -147,7 +159,7 @@ public class Guild {
         }
 
         if (data.has("channels")){
-            TextChannel = VoiceChannel = new ArrayList<>();
+            channelList = new ArrayList<>();
 
             data.getJSONArray("channels").forEach(rawData -> {
                 JSONObject channelData = (JSONObject) rawData;
@@ -157,23 +169,45 @@ public class Guild {
                 genericChannel.getType().ifPresent(type -> {
                     switch (type){
                         case GUILD_TEXT:
-                            TextChannel.add(new TextChannel(genericChannel));
+                            channelList.add(new TextChannel(genericChannel));
                             break;
 
                         case GUILD_VOICE:
-                            VoiceChannel.add(new VoiceChannel(genericChannel));
+                            channelList.add(new VoiceChannel(genericChannel));
                             break;
                     }
                 });
             });
         }
+    }
 
+    public Optional<TextChannel> getTextChannelById(String id){
+        return getChannelById(id).map(value -> (TextChannel) value);
+
+    }
+
+    public Optional<VoiceChannel> getVoiceChannelById(String id){
+        return getChannelById(id).map(value -> (VoiceChannel) value);
+
+    }
+
+    public Optional<Channel> getChannelById(String id){
+        for (Channel channel: channelList){
+            if (channel.getId().isPresent()){
+                if (channel.getId().get().equals(id)) return Optional.of(channel);
+            }
+        }
+
+        return Optional.empty();
     }
 
     public Optional<Role> getRoleById(String id){
         for (Role role : roles) {
-            if (role.getId().equals(id)) return Optional.of(role);
+            if (role.getId().isPresent()){
+                if (role.getId().get().equals(id)) return Optional.of(role);
+            }
         }
+
         return Optional.empty();
     }
 
@@ -181,7 +215,13 @@ public class Guild {
         for (VoiceState voiceState : voiceStates) {
             Optional<Member> memberOptional = voiceState.getMember();
             if (memberOptional.isPresent()){
-                if (memberOptional.get().getUser().getId().equals(id)) return Optional.of(voiceState);
+                Optional<User> userOptional = memberOptional.get().getUser();
+                if (userOptional.isPresent()){
+                    Optional<String> idOptional = userOptional.get().getId();
+                    if (idOptional.isPresent()){
+                        if (idOptional.get().equals(id)) return Optional.of(voiceState);
+                    }
+                }
             }
         }
 
@@ -189,78 +229,178 @@ public class Guild {
     }
 
     public Optional<String> getPreferredLocale() {
-        return Optional.of(preferredLocale);
+        return Optional.ofNullable(preferredLocale);
     }
 
     public Optional<String> getOwnerId() {
-        return Optional.of(ownerId);
-    }
-
-    public Optional<Long> getOwnerIdLong() {
-        return Optional.of(ownerIdLong);
+        return Optional.ofNullable(ownerId);
     }
 
     public Optional<String> getIconHash() {
-        return Optional.of(iconHash);
+        return Optional.ofNullable(iconHash);
     }
 
     public Optional<String> getDescription() {
-        return Optional.of(description);
+        return Optional.ofNullable(description);
     }
 
     public Optional<String> getSystemChannelId() {
-        return Optional.of(systemChannelId);
+        return Optional.ofNullable(systemChannelId);
     }
 
     public Optional<String> getRulesChannelId() {
-        return Optional.of(rulesChannelId);
+        return Optional.ofNullable(rulesChannelId);
     }
 
     public Optional<String> getAfkChannelId() {
-        return Optional.of(afkChannelId);
+        return Optional.ofNullable(afkChannelId);
     }
 
     public Optional<String> getGuildId() {
-        return Optional.of(guildId);
+        return Optional.ofNullable(guildId);
+    }
+
+    public Optional<String> getVanityUrlCode() {
+        return Optional.ofNullable(vanityUrlCode);
+    }
+
+    public Optional<String> getBannerHash() {
+        return Optional.ofNullable(bannerHash);
+    }
+
+    public Optional<String> getDiscordNotificationChannelId() {
+        return Optional.ofNullable(discordNotificationChannelId);
+    }
+
+    public Optional<String> getApplicationId() {
+        return Optional.ofNullable(applicationId);
+    }
+
+    public Optional<String> getBotJoinedGuildTimestamp() {
+        return Optional.ofNullable(botJoinedGuildTimestamp);
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    public Optional<String> getRegion() {
+        return Optional.ofNullable(region);
+    }
+
+    public Optional<Long> getOwnerIdLong() {
+        return Optional.ofNullable(ownerIdLong);
     }
 
     public Optional<Long> getSystemChannelIdLong() {
-        return Optional.of(systemChannelIdLong);
+        return Optional.ofNullable(systemChannelIdLong);
     }
 
     public Optional<Long> getAfkChannelIdLong() {
-        return Optional.of(afkChannelIdLong);
+        return Optional.ofNullable(afkChannelIdLong);
     }
 
     public Optional<Long> getGuildIdLong() {
-        return Optional.of(guildIdLong);
+        return Optional.ofNullable(guildIdLong);
+    }
+
+    public Optional<Long> getDiscordNotificationChannelIdLong() {
+        return Optional.ofNullable(discordNotificationChannelIdLong);
+    }
+
+    public Optional<Long> getApplicationIdLong() {
+        return Optional.ofNullable(applicationIdLong);
     }
 
     public Optional<Integer> getDefaultMessageNotifications() {
-        return Optional.of(defaultMessageNotifications);
+        return Optional.ofNullable(defaultMessageNotifications);
     }
 
     public Optional<Integer> getAfkTimeout() {
-        return Optional.of(afkTimeout);
+        return Optional.ofNullable(afkTimeout);
+    }
+
+    public Optional<Integer> getMaxMembers() {
+        return Optional.ofNullable(maxMembers);
+    }
+
+    public Optional<Integer> getMaxVideoChannelUsers() {
+        return Optional.ofNullable(maxVideoChannelUsers);
+    }
+
+    public Optional<Integer> getMemberCount() {
+        return Optional.ofNullable(memberCount);
+    }
+
+    public Optional<Integer> getNsfwLevelInt() {
+        return Optional.ofNullable(nsfwLevelInt);
+    }
+
+    public Optional<Integer> getNumberOfBoosts() {
+        return Optional.ofNullable(numberOfBoosts);
+    }
+
+    public Optional<Integer> getVerificationLevelInt() {
+        return Optional.ofNullable(verificationLevelInt);
+    }
+
+    public Optional<Integer> getExplicitContentFilterLevelInt() {
+        return Optional.ofNullable(explicitContentFilterLevelInt);
+    }
+
+    public Optional<Integer> getMfaLevel() {
+        return Optional.ofNullable(mfaLevel);
     }
 
     public Optional<Boolean> isUnavailable() {
-        return Optional.of(isUnavailable);
+        return Optional.ofNullable(isUnavailable);
     }
 
     public Optional<Boolean> isLazy() {
-        return Optional.of(isLazy);
+        return Optional.ofNullable(isLazy);
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public Optional<Boolean> isLarge() {
+        return Optional.ofNullable(isLarge);
     }
 
-    public List<GuildFeatures> getGuildFeatures() {
-        return guildFeatures;
+    public Optional<Boolean> isNSFW() {
+        return Optional.ofNullable(isNSFW);
     }
 
-    public List<Member> getMembers() {
-        return members;
+    public Optional<List<Role>> getRoles() {
+        return Optional.ofNullable(roles);
+    }
+
+    public Optional<List<GuildFeatures>> getGuildFeatures() {
+        return Optional.ofNullable(guildFeatures);
+    }
+
+    public Optional<List<Member>> getMembers() {
+        return Optional.ofNullable(members);
+    }
+
+    public Optional<List<Sticker>> getStickers() {
+        return Optional.ofNullable(stickers);
+    }
+
+    public Optional<List<VoiceState>> getVoiceStates() {
+        return Optional.ofNullable(voiceStates);
+    }
+
+    public Optional<List<Emoji>> getEmojis() {
+        return Optional.ofNullable(emojis);
+    }
+
+    public Optional<List<GuildChannel>> getChannelList() {
+        return Optional.ofNullable(channelList);
+    }
+
+    public Optional<VerificationLevel> getVerificationLevel() {
+        return Optional.ofNullable(verificationLevel);
+    }
+
+    public Optional<ExplicitContentFilterLevel> getExplicitContentFilterLevel() {
+        return Optional.ofNullable(explicitContentFilterLevel);
     }
 }

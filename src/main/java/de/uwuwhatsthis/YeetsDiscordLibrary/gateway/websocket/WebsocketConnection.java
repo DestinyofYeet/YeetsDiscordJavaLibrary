@@ -56,7 +56,7 @@ public class WebsocketConnection{
                         @Override
                         public void onError(WebSocket websocket, WebSocketException cause){
                             if (onWebsocketError != null){
-                                StateManager.getInstance().shutdown();
+                                StateManager.getInstance().shutdownExecutor();
                                 onWebsocketError.onWebsocketError(cause);
                                 return;
                             }

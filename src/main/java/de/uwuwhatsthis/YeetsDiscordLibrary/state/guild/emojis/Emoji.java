@@ -47,43 +47,43 @@ public class Emoji {
 
     }
 
-    public String getId() {
-        return id;
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public Long getIdLong() {
-        return idLong;
+    public Optional<Long> getIdLong() {
+        return Optional.ofNullable(idLong);
     }
 
-    public boolean isDoesRequireColons() {
-        return doesRequireColons;
+    public Optional<Boolean> isDoesRequireColons() {
+        return Optional.ofNullable(doesRequireColons);
     }
 
-    public boolean isManaged() {
-        return isManaged;
+    public Optional<Boolean> isManaged() {
+        return Optional.ofNullable(isManaged);
     }
 
-    public boolean isAnimated() {
-        return isAnimated;
+    public Optional<Boolean> isAnimated() {
+        return Optional.ofNullable(isAnimated);
     }
 
-    public boolean isAvailable() {
-        return isAvailable;
+    public Optional<Boolean> isAvailable() {
+        return Optional.ofNullable(isAvailable);
     }
 
-    public User getUserThatCreatedThisEmoji() {
-        return userThatCreatedThisEmoji;
+    public Optional<User> getUserThatCreatedThisEmoji() {
+        return Optional.ofNullable(userThatCreatedThisEmoji);
     }
 
-    public List<String> getAccessibleByRolesIds() {
-        return accessibleByRolesIds;
+    public Optional<List<String>> getAccessibleByRolesIds() {
+        return Optional.ofNullable(accessibleByRolesIds);
     }
 
-    public List<Role> getAccessibleByRoles() {
-        return accessibleByRoles;
+    public Optional<List<Role>> getAccessibleByRoles() {
+        return Optional.ofNullable(accessibleByRoles);
     }
 }

@@ -42,46 +42,46 @@ public class Role {
     }
 
     public Optional<Integer> getColor() {
-        return Optional.of(color);
+        return Optional.ofNullable(color);
     }
 
     public Optional<Integer> getPosition() {
-        return Optional.of(position);
+        return Optional.ofNullable(position);
     }
 
     public Optional<String> getPermissions() {
-        return Optional.of(permissions);
+        return Optional.ofNullable(permissions);
     }
 
     public Optional<String> getName() {
-        return Optional.of(name);
+        return Optional.ofNullable(name);
     }
 
     public Optional<String> getIconHash() {
-        return Optional.of(iconHash);
+        return Optional.ofNullable(iconHash);
     }
 
     public Optional<String> getId() {
-        return Optional.of(id);
+        return Optional.ofNullable(id);
     }
 
     public Optional<Long> getIdLong() {
-        return Optional.of(idLong);
+        return Optional.ofNullable(idLong);
     }
 
     public Optional<Boolean> isManaged() {
-        return Optional.of(isManaged);
+        return Optional.ofNullable(isManaged);
     }
 
     public Optional<Boolean> isMentionable() {
-        return Optional.of(isMentionable);
+        return Optional.ofNullable(isMentionable);
     }
 
     public Optional<Boolean> isPinned() {
-        return Optional.of(isPinned);
+        return Optional.ofNullable(isPinned);
     }
 
     public Optional<RoleTags> getTags() {
-        return Optional.of(tags);
+        return Optional.ofNullable(tags);
     }
 }

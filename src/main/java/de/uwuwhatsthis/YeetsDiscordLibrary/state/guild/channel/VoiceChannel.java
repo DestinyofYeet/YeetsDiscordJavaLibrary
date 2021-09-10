@@ -7,16 +7,16 @@ import de.uwuwhatsthis.YeetsDiscordLibrary.state.guild.permissions.Permission;
 import java.util.EnumSet;
 import java.util.Optional;
 
-public class VoiceChannel extends Channel {
-    private String id, name, rtcRegion;
+public class VoiceChannel extends GuildChannel {
+    private String rtcRegion;
     private int position, bitrate, userLimit;
-    private long idLong;
 
     private EnumSet<Permission> botPermission;
 
     public VoiceChannel(GenericChannel data) {
-        id = data.getId().orElse(null);
-        name = data.getName().orElse(null);
+        super(data.getId().orElse(null),
+                data.getName().orElse(null),
+                data.getGuildId().orElse(null));
         rtcRegion = data.getRtcRegion().orElse(null);
 
         position = data.getPosition().orElse(-1);
@@ -26,35 +26,23 @@ public class VoiceChannel extends Channel {
         idLong = data.getIdLong().orElse(-1L);
     }
 
-    public Optional<String> getId() {
-        return Optional.of(id);
-    }
-
-    public Optional<String> getName() {
-        return Optional.of(name);
-    }
-
     public Optional<String> getRtcRegion() {
-        return Optional.of(rtcRegion);
+        return Optional.ofNullable(rtcRegion);
     }
 
     public Optional<Integer> getPosition() {
-        return Optional.of(position);
+        return Optional.ofNullable(position);
     }
 
     public Optional<Integer> getBitrate() {
-        return Optional.of(bitrate);
+        return Optional.ofNullable(bitrate);
     }
 
     public Optional<Integer> getUserLimit() {
-        return Optional.of(userLimit);
-    }
-
-    public Optional<Long> getIdLong() {
-        return Optional.of(idLong);
+        return Optional.ofNullable(userLimit);
     }
 
     public Optional<EnumSet<Permission>> getBotPermission() {
-        return Optional.of(botPermission);
+        return Optional.ofNullable(botPermission);
     }
 }

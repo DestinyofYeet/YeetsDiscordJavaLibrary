@@ -14,9 +14,9 @@ import java.util.Optional;
 
 public class GenericChannel extends Channel {
 
-    private String id, guildId, name, topic, lastMessageId, iconHash, ownerId, applicationId, parentId, rtcRegion,
+    private String guildId, name, topic, lastMessageId, iconHash, ownerId, applicationId, parentId, rtcRegion,
             permissions, lastPinnedMessageTimestamp;
-    private Long idLong, ownerIdLong, lastMessageIdLong, applicationIdLong, parentIdLong;
+    private Long ownerIdLong, lastMessageIdLong, applicationIdLong, parentIdLong;
     private int typeInt, position, bitrate, userLimit, rateLimitPerUser, videoQualityModeInt, approxMessageCount, approxMemberCount;
     private boolean isNSFW;
     private ChannelType type;
@@ -26,8 +26,9 @@ public class GenericChannel extends Channel {
     private EnumSet<Permission> permissionsTheBotHas;
 
     public GenericChannel(JSONObject data){
+        super(Helper.getValueString(data, "id"),
+                Helper.getValueString(data, "name"));
         // TODO: Thread member data and Thread metadata
-        id = Helper.getValueString(data, "id");
         guildId = Helper.getValueString(data, "guildId");
         name = Helper.getValueString(data, "name");
         topic = Helper.getValueString(data, "topic");
@@ -54,6 +55,7 @@ public class GenericChannel extends Channel {
         ownerIdLong = Helper.parseLong(ownerId);
         applicationIdLong = Helper.parseLong(applicationId);
         parentIdLong = Helper.parseLong(parentId);
+        lastMessageIdLong = Helper.parseLong(lastMessageId);
 
         type = ChannelType.getFromValue(typeInt);
 
@@ -81,123 +83,116 @@ public class GenericChannel extends Channel {
         }
     }
 
-    public Optional<String> getId() {
-        return Optional.of(id);
-    }
-
     public Optional<String> getGuildId() {
-        return Optional.of(guildId);
+        return Optional.ofNullable(guildId);
     }
 
+    @Override
     public Optional<String> getName() {
-        return Optional.of(name);
+        return Optional.ofNullable(name);
     }
 
     public Optional<String> getTopic() {
-        return Optional.of(topic);
+        return Optional.ofNullable(topic);
     }
 
     public Optional<String> getLastMessageId() {
-        return Optional.of(lastMessageId);
+        return Optional.ofNullable(lastMessageId);
     }
 
     public Optional<String> getIconHash() {
-        return Optional.of(iconHash);
+        return Optional.ofNullable(iconHash);
     }
 
     public Optional<String> getOwnerId() {
-        return Optional.of(ownerId);
+        return Optional.ofNullable(ownerId);
     }
 
     public Optional<String> getApplicationId() {
-        return Optional.of(applicationId);
+        return Optional.ofNullable(applicationId);
     }
 
     public Optional<String> getParentId() {
-        return Optional.of(parentId);
+        return Optional.ofNullable(parentId);
     }
 
     public Optional<String> getRtcRegion() {
-        return Optional.of(rtcRegion);
+        return Optional.ofNullable(rtcRegion);
     }
 
     public Optional<String> getPermissions() {
-        return Optional.of(permissions);
+        return Optional.ofNullable(permissions);
     }
 
     public Optional<String> getLastPinnedMessageTimestamp() {
-        return Optional.of(lastPinnedMessageTimestamp);
-    }
-
-    public Optional<Long> getIdLong() {
-        return Optional.of(idLong);
+        return Optional.ofNullable(lastPinnedMessageTimestamp);
     }
 
     public Optional<Long> getOwnerIdLong() {
-        return Optional.of(ownerIdLong);
+        return Optional.ofNullable(ownerIdLong);
     }
 
     public Optional<Long> getLastMessageIdLong() {
-        return Optional.of(lastMessageIdLong);
+        return Optional.ofNullable(lastMessageIdLong);
     }
 
     public Optional<Long> getApplicationIdLong() {
-        return Optional.of(applicationIdLong);
+        return Optional.ofNullable(applicationIdLong);
     }
 
     public Optional<Long> getParentIdLong() {
-        return Optional.of(parentIdLong);
+        return Optional.ofNullable(parentIdLong);
     }
 
     public Optional<Integer> getTypeInt() {
-        return Optional.of(typeInt);
+        return Optional.ofNullable(typeInt);
     }
 
     public Optional<Integer> getPosition() {
-        return Optional.of(position);
+        return Optional.ofNullable(position);
     }
 
     public Optional<Integer> getBitrate() {
-        return Optional.of(bitrate);
+        return Optional.ofNullable(bitrate);
     }
 
     public Optional<Integer> getUserLimit() {
-        return Optional.of(userLimit);
+        return Optional.ofNullable(userLimit);
     }
 
     public Optional<Integer> getRateLimitPerUser() {
-        return Optional.of(rateLimitPerUser);
+        return Optional.ofNullable(rateLimitPerUser);
     }
 
     public Optional<Integer> getVideoQualityModeInt() {
-        return Optional.of(videoQualityModeInt);
+        return Optional.ofNullable(videoQualityModeInt);
     }
 
     public Optional<Integer> getApproxMessageCount() {
-        return Optional.of(approxMessageCount);
+        return Optional.ofNullable(approxMessageCount);
     }
 
     public Optional<Integer> getApproxMemberCount() {
-        return Optional.of(approxMemberCount);
+        return Optional.ofNullable(approxMemberCount);
     }
 
     public Optional<Boolean> isNSFW() {
-        return Optional.of(isNSFW);
+        return Optional.ofNullable(isNSFW);
     }
 
     public Optional<ChannelType> getType() {
-        return Optional.of(type);
+        return Optional.ofNullable(type);
     }
 
     public Optional<List<PermissionOverwrite>> getPermissionOverwrites() {
-        return Optional.of(permissionOverwrites);
+        return Optional.ofNullable(permissionOverwrites);
     }
 
     public Optional<List<User>> getDmRecipients() {
-        return Optional.of(dmRecipients);
+        return Optional.ofNullable(dmRecipients);
     }
 
     public Optional<EnumSet<Permission>> getPermissionsTheBotHas() {
-        return Optional.of(permissionsTheBotHas);
+        return Optional.ofNullable(permissionsTheBotHas);
     }
 }

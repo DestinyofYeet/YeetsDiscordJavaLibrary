@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Member {
     private User user;
@@ -31,70 +32,85 @@ public class Member {
         isMuted = Helper.getValueBool(data, "mute");
         isPending = Helper.getValueBool(data, "pending");
 
-        user = new User(data.getJSONObject("user"));
+        if (data.has("user"))
+            user = new User(data.getJSONObject("user"));
 
         roleIds = new ArrayList<>();
-        data.getJSONArray("roles").forEach(rawData -> {
-            String roleId = (String) rawData;
-            roleIds.add(roleId);
-        });
+        if (data.has("roles")){
+            data.getJSONArray("roles").forEach(rawData -> {
+                String roleId = (String) rawData;
+                roleIds.add(roleId);
+            });
+        }
+
 
         roles = new ArrayList<>();
         roleIds.forEach(roleId -> {
-            guild.getRoles().forEach(role -> {
-                if (role.getId().equals(roleId)){
-                    roles.add(role);
+            guild.getRoles().ifPresent(guildRoles -> guildRoles.forEach(role -> {
+                if (role.getId().isPresent()){
+                    if (role.getId().get().equals(roleId)){
+                        roles.add(role);
+                    }
                 }
-            });
+            }));
         });
 
     }
 
-    public User getUser() {
-        return user;
+    public Optional<User> getUser() {
+        return Optional.ofNullable(user);
     }
 
-    public String getNickname() {
-        return nickname;
+    public Optional<String> getNickname() {
+        return Optional.ofNullable(nickname);
     }
 
-    public String getJoinedAtTimestamp() {
-        return joinedAtTimestamp;
+    public Optional<String> getJoinedAtTimestamp() {
+        return Optional.ofNullable(joinedAtTimestamp);
     }
 
-    public String getPremiumSinceTimestamp() {
-        return premiumSinceTimestamp;
+    public Optional<String> getPremiumSinceTimestamp() {
+        return Optional.ofNullable(premiumSinceTimestamp);
     }
 
-    public String getPermissions() {
-        return permissions;
+    public Optional<String> getPermissions() {
+        return Optional.ofNullable(permissions);
     }
 
-    public List<String> getRoleIds() {
-        return roleIds;
+    public Optional<List<String>> getRoleIds() {
+        return Optional.ofNullable(roleIds);
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public Optional<List<Role>> getRoles() {
+        return Optional.ofNullable(roles);
     }
 
-    public boolean isDeaf() {
-        return isDeaf;
+    public Optional<Boolean> isDeaf() {
+        return Optional.ofNullable(isDeaf);
     }
 
-    public boolean isMuted() {
-        return isMuted;
+    public Optional<Boolean> isMuted() {
+        return Optional.ofNullable(isMuted);
     }
 
-    public boolean isPending() {
-        return isPending;
+    public Optional<Boolean> isPending() {
+        return Optional.ofNullable(isPending);
     }
 
-    public Guild getGuild() {
-        return guild;
+    public Optional<Guild> getGuild() {
+        return Optional.ofNullable(guild);
     }
 
-    public VoiceState getVoiceState() {
-        return voiceState;
+    public Optional<VoiceState> getVoiceState() {
+        return Optional.ofNullable(voiceState);
+    }
+
+    public Optional<String> getAsMention(){
+        if (user != null && user.getId().isPresent()){
+            String mention = "<@! " + user.getId().get() + ">";
+            return Optional.of(mention);
+        }
+
+        return Optional.empty();
     }
 }

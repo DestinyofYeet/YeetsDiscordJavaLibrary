@@ -3,6 +3,8 @@ package de.uwuwhatsthis.YeetsDiscordLibrary.gateway.objects;
 import com.neovisionaries.ws.client.WebSocket;
 import de.uwuwhatsthis.YeetsDiscordLibrary.events.Event;
 import de.uwuwhatsthis.YeetsDiscordLibrary.gateway.GatewayManager;
+import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Debugger;
+import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
 public class GatewayMessage {
@@ -15,15 +17,17 @@ public class GatewayMessage {
     private final GatewayManager manager;
     private final Event event;
 
+    private final static Debugger debugger = new Debugger("GatewayMessage");
+
 
     public GatewayMessage(String message, WebSocket webSocket, GatewayManager manager) {
         this.webSocket = webSocket;
         this.manager = manager;
 
         json = new JSONObject(message);
-        opCode = json.get("op").equals(JSONObject.NULL) ? -1: json.getInt("op");
-        sequence = json.get("s").equals(JSONObject.NULL) ? -1 : json.getInt("s");
-        eventName = json.get("t").equals(JSONObject.NULL) ? null : json.getString("t");
+        opCode = Helper.getValueInt(json, "op");
+        sequence = Helper.getValueInt(json, "s");
+        eventName = Helper.getValueString(json, "t");
 
         if (eventName == null){
             event = null;
@@ -32,7 +36,7 @@ public class GatewayMessage {
         }
 
         if (json.get("d") instanceof Boolean) {
-            mixedData = json.getBoolean("d");
+            mixedData = Helper.getValueBool(json, "d");
         } else {
             mixedData = json.get("d").equals(JSONObject.NULL) ? new JSONObject() : json.getJSONObject("d");
         }

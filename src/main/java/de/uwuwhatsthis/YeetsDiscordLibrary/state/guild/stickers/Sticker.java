@@ -6,6 +6,8 @@ import de.uwuwhatsthis.YeetsDiscordLibrary.state.user.User;
 import de.uwuwhatsthis.YeetsDiscordLibrary.utils.Helper;
 import org.json.JSONObject;
 
+import java.util.Optional;
+
 public class Sticker {
     private String id, packId, name, description, tags, guildId;
     private int typeInt, formatTypeInt, sortValue;
@@ -37,63 +39,63 @@ public class Sticker {
             uploadedByUser = new User(data.getJSONObject("user"));
         }
 
-        guild = StateManager.getInstance().getGuildById(guildId);
+        guild = StateManager.getInstance().getGuildById(guildId).orElse(null);
 
     }
 
-    public String getId() {
-        return id;
+    public Optional<String> getId() {
+        return Optional.ofNullable(id);
     }
 
-    public String getPackId() {
-        return packId;
+    public Optional<String> getPackId() {
+        return Optional.ofNullable(packId);
     }
 
-    public String getName() {
-        return name;
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
-    public String getDescription() {
-        return description;
+    public Optional<String> getDescription() {
+        return Optional.ofNullable(description);
     }
 
-    public String getTags() {
-        return tags;
+    public Optional<String> getTags() {
+        return Optional.ofNullable(tags);
     }
 
-    public String getGuildId() {
-        return guildId;
+    public Optional<String> getGuildId() {
+        return Optional.ofNullable(guildId);
     }
 
-    public int getTypeInt() {
-        return typeInt;
+    public Optional<Integer> getTypeInt() {
+        return Optional.ofNullable(typeInt);
     }
 
-    public int getFormatTypeInt() {
-        return formatTypeInt;
+    public Optional<Integer> getFormatTypeInt() {
+        return Optional.ofNullable(formatTypeInt);
     }
 
-    public int getSortValue() {
-        return sortValue;
+    public Optional<Integer> getSortValue() {
+        return Optional.ofNullable(sortValue);
     }
 
-    public boolean isAvailable() {
-        return available;
+    public Optional<Boolean> isAvailable() {
+        return Optional.ofNullable(available);
     }
 
-    public User getUploadedByUser() {
-        return uploadedByUser;
+    public Optional<User> getUploadedByUser() {
+        return Optional.ofNullable(uploadedByUser);
     }
 
-    public StickerType getStickerType() {
-        return stickerType;
+    public Optional<StickerType> getStickerType() {
+        return Optional.ofNullable(stickerType);
     }
 
-    public StickerFormatType getStickerFormatType() {
-        return stickerFormatType;
+    public Optional<StickerFormatType> getStickerFormatType() {
+        return Optional.ofNullable(stickerFormatType);
     }
 
-    public Guild getGuild() {
-        return guild;
+    public Optional<Guild> getGuild() {
+        return Optional.ofNullable(guild);
     }
 }
